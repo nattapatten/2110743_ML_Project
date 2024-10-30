@@ -7,9 +7,34 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve, auc 
+import joblib
+import os
+from datetime import datetime
 
+
+
+# Get the directory of the current script dynamically
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Define the base folder relative to the script directory
+base_folder = os.path.join(script_dir, 'Trained_Model', 'Logistic_Regression')
 # Load the dataset
 data = pd.read_csv(r"..\\Datasets\\diabetes.csv")
+
+
+# Get the current date and time
+current_date = datetime.now().strftime('%Y-%m-%d')
+current_time = datetime.now().strftime('%H%M')
+
+# Construct the full dynamic folder path
+dynamic_folder_path = os.path.join(base_folder, current_date, current_time)
+
+# Create the folder structure if it doesn't exist
+os.makedirs(dynamic_folder_path, exist_ok=True)
+
+# Save the model and scaler in the dynamically created folder
+model_path = os.path.join(dynamic_folder_path, 'best_logistic_model.pkl')
+scaler_path = os.path.join(dynamic_folder_path, 'scaler.pkl')
 
 # Display column names to verify the target column
 print(data.columns)
@@ -114,6 +139,14 @@ best_logreg.fit(X_train, y_train)
 # Make predictions on the test set
 y_pred_best = best_logreg.predict(X_test)
 y_prob_best = best_logreg.predict_proba(X_test)[:, 1]  # Probabilities for the positive class
+
+
+# Save the model and scaler in the dynamically created folder
+joblib.dump(best_logreg, model_path)
+joblib.dump(scaler, scaler_path)
+
+print(f"Model saved to: {model_path}")
+print(f"Scaler saved to: {scaler_path}")
 
 # Evaluate the model
 print("Optimized Model Evaluation")
